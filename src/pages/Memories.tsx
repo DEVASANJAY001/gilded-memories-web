@@ -3,34 +3,7 @@ import { Heart } from "lucide-react";
 
 const memoriesData = [
   {
-    src: "https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?w=800&auto=format&fit=crop",
-    alt: "Beach sunset memory",
-    caption: "That golden hour when the world felt perfect",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1523438885200-e635ba2c371e?w=800&auto=format&fit=crop",
-    alt: "Adventure memory",
-    caption: "Adventures that took our breath away",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1504851149312-7a075b496cc7?w=800&auto=format&fit=crop",
-    alt: "Coffee moments",
-    caption: "Simple moments over coffee and conversation",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1519904981063-b0cf448d479e?w=800&auto=format&fit=crop",
-    alt: "Mountain views",
-    caption: "Reaching new heights together",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1521336575822-6da63fb45455?w=800&auto=format&fit=crop",
-    alt: "Celebration",
-    caption: "Celebrations that filled our hearts with joy",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=800&auto=format&fit=crop",
-    alt: "Nature walk",
-    caption: "Peaceful walks through nature's beauty",
+    capiont: "inga enna podrathunu theriyala",
   },
 ];
 
@@ -41,11 +14,10 @@ const Memories = () => {
         {/* Header */}
         <div className="text-center mb-12 space-y-4 animate-fade-in">
           <h1 className="font-handwriting text-5xl md:text-6xl text-primary font-bold">
-            Treasured Memories 💝
+            Harini�
           </h1>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Each photo holds a story, a feeling, a moment frozen in time.
-            These are the memories that make life beautiful.
+            onume illa suma
           </p>
         </div>
 
