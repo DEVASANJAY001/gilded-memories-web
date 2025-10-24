@@ -27,8 +27,7 @@ const Home = () => {
           {/* Welcome message */}
           <div className="max-w-2xl mx-auto space-y-6 animate-fade-in" style={{ animationDelay: "0.3s" }}>
             <p className="text-lg text-foreground/80 leading-relaxed">
-              Welcome to a beautiful journey through memories that sparkle with love and laughter.
-              Every photo here tells a story, captures a moment, and holds a piece of our hearts forever.
+              Kevalamaa irundhaa manichiru heeheeee
             </p>
           </div>
 
