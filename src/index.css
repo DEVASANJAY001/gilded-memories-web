@@ -8,35 +8,54 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 350 100% 98%;
+    --foreground: 0 10% 20%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 0 10% 20%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 0 10% 20%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 6 93% 69%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 350 100% 88%;
+    --secondary-foreground: 0 10% 20%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 350 50% 95%;
+    --muted-foreground: 0 10% 45%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 340 100% 97%;
+    --accent-foreground: 0 10% 20%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 350 30% 90%;
+    --input: 350 30% 90%;
+    --ring: 6 93% 69%;
 
-    --radius: 0.5rem;
+    --radius: 1rem;
+    
+    /* Custom colors for the tribute theme */
+    --coral: 6 93% 69%;
+    --soft-pink: 350 100% 88%;
+    --cream: 350 100% 98%;
+    --peach: 20 100% 85%;
+    
+    /* Gradients */
+    --gradient-warm: linear-gradient(135deg, hsl(350 100% 88%), hsl(20 100% 85%), hsl(350 100% 98%));
+    --gradient-glow: radial-gradient(circle at center, hsl(6 93% 69% / 0.15), transparent);
+    
+    /* Shadows */
+    --shadow-soft: 0 4px 20px hsl(350 100% 88% / 0.3);
+    --shadow-hover: 0 8px 30px hsl(6 93% 69% / 0.4);
+    --shadow-glow: 0 0 30px hsl(6 93% 69% / 0.3);
+    
+    /* Animations */
+    --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
     --sidebar-background: 0 0% 98%;
 
