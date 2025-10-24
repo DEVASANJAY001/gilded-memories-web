@@ -7,6 +7,7 @@ import { Navigation } from "./components/Navigation";
 import { MusicPlayer } from "./components/MusicPlayer";
 import Home from "./pages/Home";
 import Gallery from "./pages/Gallery";
+import Upload from "./pages/Upload";
 import Memories from "./pages/Memories";
 import About from "./pages/About";
 import NotFound from "./pages/NotFound";
@@ -24,6 +25,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/gallery" element={<Gallery />} />
+            <Route path="/upload" element={<Upload />} />
             <Route path="/memories" element={<Memories />} />
             <Route path="/about" element={<About />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

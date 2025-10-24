@@ -13,7 +13,7 @@ const Home = () => {
           {/* Main title */}
           <div className="space-y-4">
             <h1 className="font-handwriting text-6xl md:text-8xl text-primary font-bold tracking-wide">
-              snap gallery 💖
+              harini 💖
             </h1>
             <div className="flex items-center justify-center gap-3">
               <Sparkles className="text-coral animate-sparkle" size={24} />

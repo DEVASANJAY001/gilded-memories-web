@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Grid3x3, BookHeart, Info } from "lucide-react";
+import { Home, Grid3x3, BookHeart, Info, Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const Navigation = () => {
@@ -8,6 +8,7 @@ export const Navigation = () => {
   const links = [
     { to: "/", icon: Home, label: "Home" },
     { to: "/gallery", icon: Grid3x3, label: "Gallery" },
+    { to: "/upload", icon: Upload, label: "Upload" },
     { to: "/memories", icon: BookHeart, label: "Memories" },
     { to: "/about", icon: Info, label: "About" },
   ];
@@ -17,7 +18,7 @@ export const Navigation = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <Link to="/" className="font-handwriting text-2xl text-primary font-bold">
-            Moments 💖
+            harini
           </Link>
           
           <div className="flex items-center gap-1 md:gap-2">
