@@ -14,7 +14,7 @@ const Memories = () => {
         {/* Header */}
         <div className="text-center mb-12 space-y-4 animate-fade-in">
           <h1 className="font-handwriting text-5xl md:text-6xl text-primary font-bold">
-            Harini�
+            Harini 💖
           </h1>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             onume illa suma
@@ -50,8 +50,7 @@ const Memories = () => {
         <div className="text-center mt-16 animate-fade-in space-y-4">
           <div className="w-20 h-px bg-gradient-to-r from-transparent via-primary to-transparent mx-auto" />
           <p className="text-muted-foreground font-light italic">
-            "The best things in life are the people we love, the places we've been,
-            and the memories we've made along the way."
+            "💖"
           </p>
           <div className="w-20 h-px bg-gradient-to-r from-transparent via-primary to-transparent mx-auto" />
         </div>
