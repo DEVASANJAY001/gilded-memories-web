@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Grid3x3, BookHeart, Info, Upload } from "lucide-react";
+import { Home, Grid3x3, BookHeart, Info, Upload, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const Navigation = () => {
@@ -9,6 +9,7 @@ export const Navigation = () => {
     { to: "/", icon: Home, label: "Home" },
     { to: "/gallery", icon: Grid3x3, label: "Gallery" },
     { to: "/upload", icon: Upload, label: "Upload" },
+    { to: "/notes", icon: MessageCircle, label: "Notes" },
     { to: "/memories", icon: BookHeart, label: "Memories" },
     { to: "/about", icon: Info, label: "About" },
   ];

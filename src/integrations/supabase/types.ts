@@ -14,6 +14,38 @@ export type Database = {
   }
   public: {
     Tables: {
+      notes: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          parent_id: string | null
+          sender: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          parent_id?: string | null
+          sender: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          parent_id?: string | null
+          sender?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notes_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "notes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       photos: {
         Row: {
           caption: string | null
