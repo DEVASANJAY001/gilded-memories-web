@@ -45,7 +45,7 @@ const formatDate = (dateString: string) => {
 };
 
 // ============================
-// NOTECARD COMPONENT
+// RECURSIVE NOTE CARD COMPONENT
 // ============================
 const NoteCard = React.memo(({ note }: { note: Note }) => {
   const isHarini = note.sender === "harini";
@@ -110,20 +110,19 @@ const NoteCard = React.memo(({ note }: { note: Note }) => {
           {!note.parent_id && <Heart className={`${isHarini ? "text-rose" : "text-sky"} fill-current`} size={20} />}
         </div>
 
-        <p className="text-foreground/90 leading-relaxed mb-4">{note.message}</p>
+        <p className="text-foreground/90 leading-relaxed mb-4 whitespace-pre-wrap">{note.message}</p>
 
-        {!note.parent_id && (
-          <Button
-            onClick={() => setIsReplying(!isReplying)}
-            variant="ghost"
-            size="sm"
-            className="text-primary hover:text-primary/80 p-0 h-auto"
-          >
-            <Reply size={16} className="mr-1" />
-            Reply
-          </Button>
-        )}
+        <Button
+          onClick={() => setIsReplying((prev) => !prev)}
+          variant="ghost"
+          size="sm"
+          className="text-primary hover:text-primary/80 p-0 h-auto"
+        >
+          <Reply size={16} className="mr-1" />
+          {isReplying ? "Hide Reply" : "Reply"}
+        </Button>
 
+        {/* Reply Form */}
         {isReplying && (
           <div className="mt-4 space-y-4 pt-4 border-t border-border">
             <RadioGroup
@@ -180,7 +179,7 @@ const NoteCard = React.memo(({ note }: { note: Note }) => {
         )}
       </div>
 
-      {/* Render Replies */}
+      {/* Nested Replies */}
       {note.replies && note.replies.length > 0 && (
         <div className="ml-8 md:ml-12 space-y-3">
           {note.replies.map((reply) => (
@@ -205,7 +204,6 @@ const Notes = () => {
   useEffect(() => {
     loadNotes();
 
-    // Realtime updates
     const channel = supabase
       .channel("notes-changes")
       .on(
@@ -223,15 +221,13 @@ const Notes = () => {
   const loadNotes = async () => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.from("notes").select("*").order("created_at", { ascending: false });
+      const { data, error } = await supabase.from("notes").select("*").order("created_at", { ascending: true });
       if (error) throw error;
 
       const notesMap = new Map<string, Note>();
       const rootNotes: Note[] = [];
 
-      data?.forEach((n) =>
-        notesMap.set(n.id, { ...n, sender: n.sender as "harini" | "deva", replies: [] })
-      );
+      data?.forEach((n) => notesMap.set(n.id, { ...n, sender: n.sender as "harini" | "deva", replies: [] }));
 
       data?.forEach((n) => {
         if (n.parent_id) {
@@ -283,7 +279,7 @@ const Notes = () => {
             <div className="absolute -inset-4 bg-gradient-glow opacity-60 blur-3xl -z-10 animate-glow-pulse" />
           </div>
           <p className="text-muted-foreground text-lg md:text-xl max-w-2xl mx-auto font-light">
-            Leave a sweet message for each other
+            Leave a sweet message for each other — and reply anytime 💬
           </p>
         </div>
 
