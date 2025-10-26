@@ -23,54 +23,74 @@ export const PhotoCard = ({ src, alt, caption, onClick, className }: PhotoCardPr
   return (
     <div
       className={cn(
-        "relative group cursor-pointer overflow-hidden rounded-2xl shadow-soft hover:shadow-hover transition-all duration-500",
-        "transform hover:scale-105 hover:-rotate-1",
+        "relative group cursor-pointer overflow-hidden rounded-3xl shadow-soft hover:shadow-elegant transition-all duration-700",
+        "transform hover:scale-[1.03] hover:rotate-1 will-change-transform",
+        "before:absolute before:inset-0 before:rounded-3xl before:p-[2px] before:bg-gradient-primary before:opacity-0 before:transition-opacity before:duration-500 hover:before:opacity-100",
         className
       )}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={() => setIsHovered(false)}
       onClick={onClick}
     >
-      <div className="relative overflow-hidden bg-gradient-to-br from-soft-pink/20 to-peach/20">
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-soft-pink/30 via-lavender/20 to-sky/20">
         <img
           src={src}
           alt={alt}
           loading="lazy"
           className={cn(
-            "w-full h-full object-cover transition-transform duration-700",
-            isHovered && "scale-110"
+            "w-full h-full object-cover transition-all duration-1000",
+            isHovered && "scale-110 brightness-110"
           )}
         />
         
-        {/* Glow overlay on hover */}
+        {/* Multi-layer glow effects */}
         <div
           className={cn(
-            "absolute inset-0 bg-gradient-glow opacity-0 transition-opacity duration-500",
+            "absolute inset-0 bg-gradient-glow opacity-0 transition-opacity duration-700",
             isHovered && "opacity-100"
           )}
         />
+        <div
+          className={cn(
+            "absolute inset-0 bg-gradient-to-t from-primary/20 via-transparent to-transparent opacity-0 transition-opacity duration-500",
+            isHovered && "opacity-100"
+          )}
+        />
+
+        {/* Shimmer effect on hover */}
+        {isHovered && (
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-shimmer animate-shimmer" />
+          </div>
+        )}
 
         {/* Heart animation */}
         {showHeart && (
           <div className="absolute inset-0 flex items-center justify-center">
             <Heart
-              className="text-primary fill-primary animate-sparkle"
+              className="text-primary fill-primary drop-shadow-lg animate-float"
               size={60}
+              style={{ filter: "drop-shadow(0 0 20px hsl(340 82% 65%))" }}
             />
           </div>
         )}
 
-        {/* Sparkles on hover */}
+        {/* Sparkles on hover - more dynamic */}
         {isHovered && (
           <>
             <Sparkles
-              className="absolute top-4 right-4 text-primary animate-sparkle"
-              size={24}
+              className="absolute top-6 right-6 text-rose animate-sparkle drop-shadow-lg"
+              size={28}
             />
             <Sparkles
-              className="absolute bottom-4 left-4 text-primary animate-sparkle"
+              className="absolute bottom-6 left-6 text-lavender animate-sparkle drop-shadow-lg"
+              size={24}
+              style={{ animationDelay: "0.2s" }}
+            />
+            <Sparkles
+              className="absolute top-1/2 left-6 text-mint animate-sparkle drop-shadow-lg"
               size={20}
-              style={{ animationDelay: "0.3s" }}
+              style={{ animationDelay: "0.4s" }}
             />
           </>
         )}
@@ -79,11 +99,11 @@ export const PhotoCard = ({ src, alt, caption, onClick, className }: PhotoCardPr
       {caption && (
         <div
           className={cn(
-            "absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent",
-            "transform translate-y-full group-hover:translate-y-0 transition-transform duration-300"
+            "absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-primary/90 via-primary/60 to-transparent backdrop-blur-sm",
+            "transform translate-y-full group-hover:translate-y-0 transition-all duration-500"
           )}
         >
-          <p className="text-white text-sm font-light">{caption}</p>
+          <p className="text-white text-sm md:text-base font-light drop-shadow-lg">{caption}</p>
         </div>
       )}
     </div>

@@ -98,14 +98,17 @@ const Gallery = () => {
   };
 
   return (
-    <div className="min-h-screen pt-24 pb-16 px-4">
+    <div className="min-h-screen pt-24 pb-16 px-4 bg-gradient-to-br from-background via-accent to-muted">
       <div className="container mx-auto">
         {/* Header */}
-        <div className="text-center mb-12 space-y-6 animate-fade-in">
-          <h1 className="font-handwriting text-5xl md:text-6xl text-primary font-bold">
-            snap gallery ✨
-          </h1>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+        <div className="text-center mb-16 space-y-6 animate-fade-in">
+          <div className="relative inline-block">
+            <h1 className="font-handwriting text-6xl md:text-7xl text-primary font-bold drop-shadow-lg">
+              snap gallery ✨
+            </h1>
+            <div className="absolute -inset-4 bg-gradient-glow opacity-60 blur-3xl -z-10 animate-glow-pulse" />
+          </div>
+          <p className="text-muted-foreground text-lg md:text-xl max-w-2xl mx-auto font-light">
             Beautiful moments captured in time. Click on any photo to view it in full glory.
           </p>
           
@@ -114,7 +117,7 @@ const Gallery = () => {
               onClick={shuffleImages}
               variant="outline"
               disabled={images.length === 0}
-              className="rounded-full shadow-soft hover:shadow-hover transition-all duration-300"
+              className="rounded-full shadow-soft hover:shadow-elegant transition-all duration-500 border-2 hover:scale-105"
             >
               <Shuffle size={18} className="mr-2" />
               Shuffle Memories
@@ -144,7 +147,7 @@ const Gallery = () => {
 
         {/* Masonry Gallery */}
         {!isLoading && images.length > 0 && (
-          <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 space-y-4">
+          <div className="columns-2 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-4 space-y-4">
             {images.map((image, index) => (
               <div key={index} className="break-inside-avoid animate-fade-in" style={{ animationDelay: `${index * 0.05}s` }}>
                 <PhotoCard

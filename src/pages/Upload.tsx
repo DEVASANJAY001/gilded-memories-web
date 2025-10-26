@@ -131,20 +131,23 @@ const Upload = () => {
   };
 
   return (
-    <div className="min-h-screen pt-24 pb-16 px-4">
+    <div className="min-h-screen pt-24 pb-16 px-4 bg-gradient-to-br from-background via-accent to-muted">
       <div className="container mx-auto max-w-4xl">
         {/* Header */}
-        <div className="text-center mb-12 space-y-4 animate-fade-in">
-          <h1 className="font-handwriting text-5xl md:text-6xl text-primary font-bold">
-            Upload Photos 📸
-          </h1>
-          <p className="text-muted-foreground text-lg">
+        <div className="text-center mb-12 space-y-6 animate-fade-in">
+          <div className="relative inline-block">
+            <h1 className="font-handwriting text-6xl md:text-7xl text-primary font-bold drop-shadow-lg">
+              Upload Photos 📸
+            </h1>
+            <div className="absolute -inset-4 bg-gradient-glow opacity-60 blur-3xl -z-10 animate-glow-pulse" />
+          </div>
+          <p className="text-muted-foreground text-lg md:text-xl font-light">
             Add beautiful moments to the gallery. Supports JPG, PNG, GIF, and WebP formats.
           </p>
         </div>
 
         {/* Upload Area */}
-        <div className="bg-card rounded-3xl shadow-soft p-8 space-y-8">
+        <div className="bg-card/80 backdrop-blur-xl rounded-3xl shadow-elegant border-2 border-primary/10 p-8 md:p-10 space-y-8">
           {/* File Input */}
           <div className="space-y-4">
             <Label htmlFor="file-upload" className="text-lg font-medium">
@@ -161,13 +164,16 @@ const Upload = () => {
               />
               <label
                 htmlFor="file-upload"
-                className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-border rounded-2xl cursor-pointer hover:border-primary hover:bg-accent/50 transition-all duration-300"
+                className="flex flex-col items-center justify-center w-full h-56 border-3 border-dashed border-primary/30 rounded-3xl cursor-pointer hover:border-primary hover:bg-gradient-to-br hover:from-primary/5 hover:to-lavender/5 transition-all duration-500 group bg-gradient-to-br from-muted/50 to-accent/30"
               >
-                <div className="flex flex-col items-center gap-3">
-                  <UploadIcon className="w-12 h-12 text-primary" />
-                  <div className="text-center">
-                    <p className="text-lg font-medium">Click to select photos</p>
-                    <p className="text-sm text-muted-foreground mt-1">
+                <div className="flex flex-col items-center gap-4">
+                  <div className="relative">
+                    <UploadIcon className="w-16 h-16 text-primary drop-shadow-lg group-hover:scale-110 transition-transform duration-500" />
+                    <div className="absolute -inset-2 bg-gradient-glow opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500" />
+                  </div>
+                  <div className="text-center space-y-2">
+                    <p className="text-xl font-semibold text-primary group-hover:scale-105 transition-transform duration-300">Click to select photos</p>
+                    <p className="text-sm text-muted-foreground">
                       or drag and drop multiple files
                     </p>
                   </div>
@@ -237,13 +243,16 @@ const Upload = () => {
               onClick={handleUpload}
               disabled={selectedFiles.length === 0 || isUploading}
               size="lg"
-              className="px-12 py-6 text-lg rounded-full shadow-glow hover:shadow-hover transition-all duration-300"
+              className="px-16 py-7 text-xl rounded-full shadow-glow hover:shadow-elegant transition-all duration-500 hover:scale-105 bg-gradient-primary border-0"
             >
               {isUploading ? (
-                <>Uploading...</>
+                <>
+                  <div className="animate-spin mr-2">⚡</div>
+                  Uploading Magic...
+                </>
               ) : (
                 <>
-                  <UploadIcon className="mr-2" size={20} />
+                  <UploadIcon className="mr-2" size={24} />
                   Upload {selectedFiles.length > 0 ? `${selectedFiles.length} Photo${selectedFiles.length > 1 ? 's' : ''}` : 'Photos'}
                 </>
               )}
