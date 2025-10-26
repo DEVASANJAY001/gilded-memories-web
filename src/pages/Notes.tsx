@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { MessageCircle, Send, Reply, Heart } from "lucide-react";
+import { MessageCircle, Send, Reply, Heart, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -53,6 +53,7 @@ const NoteCard = React.memo(({ note }: { note: Note }) => {
   const [replyMessage, setReplyMessage] = useState("");
   const [replySender, setReplySender] = useState<"harini" | "deva">("harini");
   const [isSending, setIsSending] = useState(false);
+  const [showReplies, setShowReplies] = useState(true);
 
   const handleSendReply = async () => {
     const validation = noteSchema.safeParse({ sender: replySender, message: replyMessage });
@@ -93,6 +94,7 @@ const NoteCard = React.memo(({ note }: { note: Note }) => {
           isHarini ? "border-rose/30" : "border-sky/30"
         }`}
       >
+        {/* Header */}
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-2">
             <div
@@ -110,17 +112,40 @@ const NoteCard = React.memo(({ note }: { note: Note }) => {
           {!note.parent_id && <Heart className={`${isHarini ? "text-rose" : "text-sky"} fill-current`} size={20} />}
         </div>
 
+        {/* Message */}
         <p className="text-foreground/90 leading-relaxed mb-4 whitespace-pre-wrap">{note.message}</p>
 
-        <Button
-          onClick={() => setIsReplying((prev) => !prev)}
-          variant="ghost"
-          size="sm"
-          className="text-primary hover:text-primary/80 p-0 h-auto"
-        >
-          <Reply size={16} className="mr-1" />
-          {isReplying ? "Hide Reply" : "Reply"}
-        </Button>
+        {/* Reply Button */}
+        <div className="flex items-center gap-3">
+          <Button
+            onClick={() => setIsReplying((prev) => !prev)}
+            variant="ghost"
+            size="sm"
+            className="text-primary hover:text-primary/80 p-0 h-auto"
+          >
+            <Reply size={16} className="mr-1" />
+            {isReplying ? "Hide Reply" : "Reply"}
+          </Button>
+
+          {note.replies && note.replies.length > 0 && (
+            <Button
+              onClick={() => setShowReplies((prev) => !prev)}
+              variant="ghost"
+              size="sm"
+              className="text-muted-foreground hover:text-primary/80 p-0 h-auto"
+            >
+              {showReplies ? (
+                <>
+                  <ChevronUp size={16} className="mr-1" /> Hide Replies ({note.replies.length})
+                </>
+              ) : (
+                <>
+                  <ChevronDown size={16} className="mr-1" /> View Replies ({note.replies.length})
+                </>
+              )}
+            </Button>
+          )}
+        </div>
 
         {/* Reply Form */}
         {isReplying && (
@@ -179,8 +204,8 @@ const NoteCard = React.memo(({ note }: { note: Note }) => {
         )}
       </div>
 
-      {/* Nested Replies */}
-      {note.replies && note.replies.length > 0 && (
+      {/* Recursive Replies */}
+      {showReplies && note.replies && note.replies.length > 0 && (
         <div className="ml-8 md:ml-12 space-y-3">
           {note.replies.map((reply) => (
             <NoteCard key={reply.id} note={reply} />
@@ -272,12 +297,7 @@ const Notes = () => {
       <div className="container mx-auto max-w-4xl">
         {/* Header */}
         <div className="text-center mb-12 space-y-6 animate-fade-in">
-          <div className="relative inline-block">
-            <h1 className="font-handwriting text-6xl md:text-7xl text-primary font-bold drop-shadow-lg">
-              Our Notes 💌
-            </h1>
-            <div className="absolute -inset-4 bg-gradient-glow opacity-60 blur-3xl -z-10 animate-glow-pulse" />
-          </div>
+          <h1 className="font-handwriting text-6xl md:text-7xl text-primary font-bold drop-shadow-lg">Our Notes 💌</h1>
           <p className="text-muted-foreground text-lg md:text-xl max-w-2xl mx-auto font-light">
             Leave a sweet message for each other — and reply anytime 💬
           </p>
