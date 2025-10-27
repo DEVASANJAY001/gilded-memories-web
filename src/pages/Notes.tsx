@@ -1,5 +1,13 @@
 import { useState, useEffect } from "react";
-import { Send, Edit2, Trash2, Check, CheckCheck, Reply } from "lucide-react";
+import {
+  Send,
+  Edit2,
+  Trash2,
+  Check,
+  CheckCheck,
+  Reply,
+  X,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -29,7 +37,7 @@ interface Note {
 }
 
 // ============================
-// TIME FORMATTER
+// HELPERS
 // ============================
 const formatTime = (timestamp: string) => {
   const date = new Date(timestamp);
@@ -37,7 +45,7 @@ const formatTime = (timestamp: string) => {
 };
 
 // ============================
-// SINGLE MESSAGE COMPONENT
+// MESSAGE BUBBLE COMPONENT
 // ============================
 const MessageBubble = React.memo(
   ({
@@ -55,24 +63,29 @@ const MessageBubble = React.memo(
   }) => {
     const isOwn = note.sender === currentUser;
 
-    const tickIcon = note.seen
-      ? <CheckCheck className="w-4 h-4 text-blue-500" />
-      : note.delivered
-      ? <CheckCheck className="w-4 h-4 text-muted-foreground" />
-      : <Check className="w-4 h-4 text-muted-foreground" />;
+    // ✅ Tick Icons
+    const tickIcon = note.seen ? (
+      <CheckCheck className="w-4 h-4 text-sky-400" />
+    ) : note.delivered ? (
+      <CheckCheck className="w-4 h-4 text-muted-foreground" />
+    ) : (
+      <Check className="w-4 h-4 text-muted-foreground" />
+    );
 
     return (
-      <div className={`flex ${isOwn ? "justify-end" : "justify-start"} mb-2`}>
+      <div className={`flex ${isOwn ? "justify-end" : "justify-start"} mb-3`}>
         <div
-          className={`max-w-[75%] rounded-2xl p-3 shadow ${
+          className={`max-w-[75%] rounded-2xl p-3 shadow-md ${
             isOwn
-              ? "bg-gradient-to-br from-rose-500 to-pink-400 text-white rounded-br-sm"
-              : "bg-gradient-to-br from-sky-500 to-teal-400 text-white rounded-bl-sm"
+              ? "bg-gradient-to-br from-pink-500 to-rose-400 text-white rounded-br-sm"
+              : "bg-gradient-to-br from-sky-500 to-cyan-400 text-white rounded-bl-sm"
           }`}
         >
-          <p className="whitespace-pre-wrap break-words">{note.message}</p>
+          <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">
+            {note.message}
+          </p>
 
-          <div className="flex items-center justify-end gap-1 mt-1 text-xs opacity-80">
+          <div className="flex items-center justify-end gap-1 mt-1 text-[11px] opacity-90">
             <span>{formatTime(note.created_at)}</span>
             {isOwn && tickIcon}
           </div>
@@ -81,39 +94,39 @@ const MessageBubble = React.memo(
           <div
             className={`flex gap-2 mt-1 ${
               isOwn ? "justify-end" : "justify-start"
-            } text-white/70`}
+            } text-white/80`}
           >
             <button
               onClick={() => onReply(note)}
-              className="text-xs hover:text-white flex items-center gap-1"
+              className="text-[11px] hover:text-white flex items-center gap-1"
             >
-              <Reply size={12} /> Reply
+              <Reply size={11} /> Reply
             </button>
             {isOwn && (
               <>
                 <button
                   onClick={() => onEdit(note)}
-                  className="text-xs hover:text-white flex items-center gap-1"
+                  className="text-[11px] hover:text-white flex items-center gap-1"
                 >
-                  <Edit2 size={12} /> Edit
+                  <Edit2 size={11} /> Edit
                 </button>
                 <button
                   onClick={() => onDelete(note.id)}
-                  className="text-xs hover:text-white flex items-center gap-1"
+                  className="text-[11px] hover:text-white flex items-center gap-1"
                 >
-                  <Trash2 size={12} /> Delete
+                  <Trash2 size={11} /> Delete
                 </button>
               </>
             )}
           </div>
 
-          {/* Recursive replies */}
+          {/* Recursive Replies */}
           {note.replies && note.replies.length > 0 && (
             <div className="mt-2 border-l border-white/30 pl-3 space-y-2">
-              {note.replies.map((r) => (
+              {note.replies.map((reply) => (
                 <MessageBubble
-                  key={r.id}
-                  note={r}
+                  key={reply.id}
+                  note={reply}
                   currentUser={currentUser}
                   onReply={onReply}
                   onEdit={onEdit}
@@ -129,7 +142,7 @@ const MessageBubble = React.memo(
 );
 
 // ============================
-// MAIN CHAT COMPONENT
+// MAIN CHAT PAGE
 // ============================
 const Notes = () => {
   const [notes, setNotes] = useState<Note[]>([]);
@@ -139,16 +152,13 @@ const Notes = () => {
   const [editNote, setEditNote] = useState<Note | null>(null);
   const [isSending, setIsSending] = useState(false);
 
+  // 🔁 Load + Realtime sync
   useEffect(() => {
     loadNotes();
-
     const channel = supabase
       .channel("notes-realtime")
-      .on("postgres_changes", { event: "*", schema: "public", table: "notes" }, () => {
-        loadNotes();
-      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "notes" }, loadNotes)
       .subscribe();
-
     return () => {
       supabase.removeChannel(channel);
     };
@@ -174,10 +184,11 @@ const Notes = () => {
 
       setNotes(roots);
     } catch (err) {
-      console.error(err);
+      console.error("Error loading notes:", err);
     }
   };
 
+  // ✉️ Send / Edit / Reply
   const handleSend = async () => {
     if (!message.trim()) return;
     const validation = noteSchema.safeParse({ sender, message });
@@ -186,7 +197,6 @@ const Notes = () => {
     setIsSending(true);
     try {
       if (editNote) {
-        // Edit existing note
         const { error } = await supabase
           .from("notes")
           .update({ message })
@@ -195,7 +205,6 @@ const Notes = () => {
         toast.success("Message updated!");
         setEditNote(null);
       } else {
-        // Send new or reply
         const { error } = await supabase.from("notes").insert({
           sender,
           message,
@@ -208,35 +217,36 @@ const Notes = () => {
       setMessage("");
     } catch (err) {
       console.error(err);
-      toast.error("Action failed");
+      toast.error("Failed to send message");
     } finally {
       setIsSending(false);
     }
   };
 
+  // 🗑 Delete
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this message?")) return;
     try {
       const { error } = await supabase.from("notes").delete().eq("id", id);
       if (error) throw error;
-      toast.success("Deleted");
+      toast.success("Deleted!");
     } catch {
       toast.error("Delete failed");
     }
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-b from-background to-muted">
-      {/* Chat Header */}
-      <div className="p-4 border-b bg-card/80 backdrop-blur-xl text-center font-semibold text-lg">
+    <div className="flex flex-col h-screen bg-gradient-to-b from-[#fdf2f8] via-[#f0f9ff] to-[#fefcfb]">
+      {/* Header */}
+      <div className="p-4 border-b bg-white/80 backdrop-blur-xl text-center font-semibold text-lg text-gray-800 shadow-sm">
         💬 Harini & Deva Chat
       </div>
 
-      {/* Chat Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-2">
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto px-4 py-6 space-y-2">
         {notes.length === 0 ? (
-          <div className="flex justify-center items-center h-full text-muted-foreground">
-            No messages yet.
+          <div className="flex justify-center items-center h-full text-gray-500">
+            No messages yet. Start chatting! 💌
           </div>
         ) : (
           notes.map((note) => (
@@ -255,20 +265,22 @@ const Notes = () => {
         )}
       </div>
 
-      {/* Message Input */}
-      <div className="border-t bg-card/90 backdrop-blur-xl p-4">
+      {/* Input Bar */}
+      <div className="border-t bg-white/90 backdrop-blur-xl p-4 shadow-inner">
         {replyTo && (
-          <div className="mb-2 p-2 bg-primary/10 rounded-md text-sm flex justify-between items-center">
-            Replying to <strong>{replyTo.sender}</strong>: "{replyTo.message.slice(0, 30)}..."
+          <div className="mb-2 p-2 bg-sky-50 border border-sky-200 rounded-md text-sm flex justify-between items-center">
+            Replying to <strong>{replyTo.sender}</strong>: "
+            {replyTo.message.slice(0, 40)}..."
             <button
               onClick={() => setReplyTo(null)}
-              className="text-xs text-muted-foreground hover:text-primary"
+              className="text-xs text-muted-foreground hover:text-sky-500 flex items-center gap-1"
             >
-              Cancel
+              <X size={12} /> Cancel
             </button>
           </div>
         )}
         <div className="flex items-end gap-2">
+          {/* Sender Selector */}
           <RadioGroup
             value={sender}
             onValueChange={(v) => setSender(v as "harini" | "deva")}
@@ -276,26 +288,32 @@ const Notes = () => {
           >
             <div className="flex items-center space-x-1">
               <RadioGroupItem value="harini" id="sender-harini" />
-              <Label htmlFor="sender-harini" className="text-sm">Harini</Label>
+              <Label htmlFor="sender-harini" className="text-sm">
+                Harini
+              </Label>
             </div>
             <div className="flex items-center space-x-1">
               <RadioGroupItem value="deva" id="sender-deva" />
-              <Label htmlFor="sender-deva" className="text-sm">Deva</Label>
+              <Label htmlFor="sender-deva" className="text-sm">
+                Deva
+              </Label>
             </div>
           </RadioGroup>
 
+          {/* Message Box */}
           <Textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder={editNote ? "Edit message..." : "Type a message..."}
-            className="flex-1 resize-none rounded-2xl min-h-[48px] max-h-[120px]"
+            className="flex-1 resize-none rounded-2xl min-h-[48px] max-h-[120px] bg-gray-50 border border-gray-200 focus:border-sky-300 focus:ring-1 focus:ring-sky-300"
             rows={2}
           />
 
+          {/* Send Button */}
           <Button
             onClick={handleSend}
             disabled={isSending || !message.trim()}
-            className="rounded-full h-12 w-12 p-0 flex items-center justify-center"
+            className="rounded-full h-12 w-12 p-0 flex items-center justify-center bg-gradient-to-br from-sky-500 to-blue-500 hover:from-sky-600 hover:to-blue-600 text-white shadow-md"
           >
             <Send size={18} />
           </Button>
