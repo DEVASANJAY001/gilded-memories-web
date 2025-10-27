@@ -53,7 +53,7 @@ const NoteCard = React.memo(({ note }: { note: Note }) => {
   const [replyMessage, setReplyMessage] = useState("");
   const [replySender, setReplySender] = useState<"harini" | "deva">("harini");
   const [isSending, setIsSending] = useState(false);
-  const [showReplies, setShowReplies] = useState(true);
+  const [showReplies, setShowReplies] = useState(false);
 
   const handleSendReply = async () => {
     const validation = noteSchema.safeParse({ sender: replySender, message: replyMessage });

@@ -72,6 +72,19 @@ const About = () => {
                 Forever grateful for these beautiful memories
               </p>
             </div>
+
+            {/* Spotify Link */}
+            <div className="flex justify-center pt-6">
+              <a
+                href="https://open.spotify.com/user/31utrzwwecfeebnviv2aghdhxtry?si=40d88211df704700"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-3 bg-[#1DB954] hover:bg-[#1ed760] text-white px-6 py-3 rounded-full shadow-glow transition-all duration-300 hover:scale-105"
+              >
+                <SiSpotify size={24} />
+                <span className="font-semibold">Listen on Spotify - Devaa</span>
+              </a>
+            </div>
           </div>
 
           {/* Decorative elements */}
@@ -79,19 +92,6 @@ const About = () => {
             <div className="w-20 h-px bg-gradient-to-r from-transparent via-primary to-transparent" />
             <Heart className="fill-primary text-primary animate-glow-pulse drop-shadow-lg" size={24} />
             <div className="w-20 h-px bg-gradient-to-r from-transparent via-primary to-transparent" />
-          </div>
-
-          {/* Spotify Link */}
-          <div className="flex justify-center pt-6">
-            <a
-              href="https://open.spotify.com/user/31utrzwwecfeebnviv2aghdhxtry?si=40d88211df704700"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-3 bg-[#1DB954] hover:bg-[#1ed760] text-white px-6 py-3 rounded-full shadow-glow transition-all duration-300 hover:scale-105"
-            >
-              <SiSpotify size={24} />
-              <span className="font-semibold">Listen on Spotify - Devaa</span>
-            </a>
           </div>
         </div>
       </div>
