@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      memories: {
+        Row: {
+          caption: string
+          created_at: string
+          description: string | null
+          id: string
+          memory_date: string
+          photo_url: string
+        }
+        Insert: {
+          caption: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          memory_date: string
+          photo_url: string
+        }
+        Update: {
+          caption?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          memory_date?: string
+          photo_url?: string
+        }
+        Relationships: []
+      }
       notes: {
         Row: {
           created_at: string
