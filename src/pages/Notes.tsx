@@ -50,7 +50,9 @@ const formatDate = (dateString: string) => {
 const NoteCard = React.memo(({ note }: { note: Note }) => {
   const isHarini = note.sender === "harini";
   const [isReplying, setIsReplying] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [replyMessage, setReplyMessage] = useState("");
+  const [editMessage, setEditMessage] = useState(note.message);
   const [replySender, setReplySender] = useState<"harini" | "deva">("harini");
   const [isSending, setIsSending] = useState(false);
   const [showReplies, setShowReplies] = useState(false);
@@ -87,69 +89,156 @@ const NoteCard = React.memo(({ note }: { note: Note }) => {
     }
   };
 
+  const handleEditNote = async () => {
+    const validation = noteSchema.safeParse({ sender: note.sender, message: editMessage });
+    if (!validation.success) {
+      toast.error(validation.error.errors[0].message);
+      return;
+    }
+
+    setIsSending(true);
+    try {
+      const { error } = await supabase.from("notes").update({ message: editMessage }).eq("id", note.id);
+
+      if (error) {
+        console.error("Error editing note:", error);
+        toast.error("Failed to edit note");
+        return;
+      }
+
+      toast.success("Note updated! ✏️");
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Error editing note:", error);
+      toast.error("Failed to edit note");
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  const handleDeleteNote = async () => {
+    if (!confirm("Are you sure you want to delete this note?")) return;
+
+    try {
+      const { error } = await supabase.from("notes").delete().eq("id", note.id);
+
+      if (error) {
+        console.error("Error deleting note:", error);
+        toast.error("Failed to delete note");
+        return;
+      }
+
+      toast.success("Note deleted! 🗑️");
+    } catch (error) {
+      console.error("Error deleting note:", error);
+      toast.error("Failed to delete note");
+    }
+  };
+
   return (
-    <div className="space-y-3">
-      <div
-        className={`bg-card/80 backdrop-blur-xl rounded-3xl p-6 shadow-soft border-2 transition-all duration-300 hover:shadow-elegant ${
-          isHarini ? "border-rose/30" : "border-sky/30"
-        }`}
-      >
-        {/* Header */}
-        <div className="flex items-start justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <div
-              className={`w-10 h-10 rounded-full flex items-center justify-center font-handwriting text-xl ${
-                isHarini ? "bg-gradient-to-br from-rose to-lavender" : "bg-gradient-to-br from-sky to-mint"
-              } text-white shadow-soft`}
-            >
-              {isHarini ? "H" : "D"}
-            </div>
-            <div>
-              <p className="font-semibold text-foreground capitalize">{note.sender}</p>
-              <p className="text-xs text-muted-foreground">{formatDate(note.created_at)}</p>
-            </div>
-          </div>
-          {!note.parent_id && <Heart className={`${isHarini ? "text-rose" : "text-sky"} fill-current`} size={20} />}
+    <div className={`flex ${isHarini ? "justify-end" : "justify-start"} mb-4`}>
+      <div className={`max-w-[75%] ${isHarini ? "items-end" : "items-start"} flex flex-col gap-1`}>
+        {/* Sender name and time */}
+        <div className={`flex items-center gap-2 px-2 ${isHarini ? "flex-row-reverse" : "flex-row"}`}>
+          <span className="text-xs font-semibold text-muted-foreground capitalize">{note.sender}</span>
+          <span className="text-xs text-muted-foreground">{formatDate(note.created_at)}</span>
         </div>
 
-        {/* Message */}
-        <p className="text-foreground/90 leading-relaxed mb-4 whitespace-pre-wrap">{note.message}</p>
-
-        {/* Reply Button */}
-        <div className="flex items-center gap-3">
-          <Button
-            onClick={() => setIsReplying((prev) => !prev)}
-            variant="ghost"
-            size="sm"
-            className="text-primary hover:text-primary/80 p-0 h-auto"
-          >
-            <Reply size={16} className="mr-1" />
-            {isReplying ? "Hide Reply" : "Reply"}
-          </Button>
-
-          {note.replies && note.replies.length > 0 && (
-            <Button
-              onClick={() => setShowReplies((prev) => !prev)}
-              variant="ghost"
-              size="sm"
-              className="text-muted-foreground hover:text-primary/80 p-0 h-auto"
-            >
-              {showReplies ? (
-                <>
-                  <ChevronUp size={16} className="mr-1" /> Hide Replies ({note.replies.length})
-                </>
-              ) : (
-                <>
-                  <ChevronDown size={16} className="mr-1" /> View Replies ({note.replies.length})
-                </>
-              )}
-            </Button>
+        {/* Message bubble */}
+        <div
+          className={`rounded-2xl px-4 py-3 shadow-md transition-all duration-300 hover:shadow-lg ${
+            isHarini
+              ? "bg-gradient-to-br from-rose to-lavender text-white rounded-tr-sm"
+              : "bg-gradient-to-br from-sky to-mint text-white rounded-tl-sm"
+          }`}
+        >
+          {isEditing ? (
+            <div className="space-y-3">
+              <Textarea
+                value={editMessage}
+                onChange={(e) => setEditMessage(e.target.value)}
+                className="resize-none rounded-xl bg-white/20 text-white placeholder:text-white/70 border-white/30"
+                rows={3}
+                maxLength={500}
+              />
+              <div className="flex gap-2">
+                <Button onClick={handleEditNote} disabled={isSending} size="sm" className="bg-white/20 hover:bg-white/30 text-white border-0">
+                  Save
+                </Button>
+                <Button
+                  onClick={() => {
+                    setIsEditing(false);
+                    setEditMessage(note.message);
+                  }}
+                  variant="ghost"
+                  size="sm"
+                  className="text-white hover:bg-white/20"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <p className="text-white leading-relaxed whitespace-pre-wrap break-words">{note.message}</p>
           )}
         </div>
 
+        {/* Action buttons */}
+        {!isEditing && (
+          <div className={`flex items-center gap-3 px-2 flex-wrap ${isHarini ? "justify-end" : "justify-start"}`}>
+            <Button
+              onClick={() => setIsReplying((prev) => !prev)}
+              variant="ghost"
+              size="sm"
+              className="text-muted-foreground hover:text-primary p-0 h-auto text-xs"
+            >
+              <Reply size={14} className="mr-1" />
+              {isReplying ? "Hide" : "Reply"}
+            </Button>
+
+            <Button
+              onClick={() => setIsEditing(true)}
+              variant="ghost"
+              size="sm"
+              className="text-muted-foreground hover:text-primary p-0 h-auto text-xs"
+            >
+              <MessageCircle size={14} className="mr-1" />
+              Edit
+            </Button>
+
+            <Button
+              onClick={handleDeleteNote}
+              variant="ghost"
+              size="sm"
+              className="text-muted-foreground hover:text-destructive p-0 h-auto text-xs"
+            >
+              Delete
+            </Button>
+
+            {note.replies && note.replies.length > 0 && (
+              <Button
+                onClick={() => setShowReplies((prev) => !prev)}
+                variant="ghost"
+                size="sm"
+                className="text-muted-foreground hover:text-primary p-0 h-auto text-xs"
+              >
+                {showReplies ? (
+                  <>
+                    <ChevronUp size={14} className="mr-1" /> Hide ({note.replies.length})
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown size={14} className="mr-1" /> View ({note.replies.length})
+                  </>
+                )}
+              </Button>
+            )}
+          </div>
+        )}
+
         {/* Reply Form */}
         {isReplying && (
-          <div className="mt-4 space-y-4 pt-4 border-t border-border">
+          <div className="w-full mt-2 space-y-3 p-4 bg-card/50 backdrop-blur-sm rounded-2xl border border-border">
             <RadioGroup
               value={replySender}
               onValueChange={(value) => setReplySender(value as "harini" | "deva")}
@@ -157,13 +246,13 @@ const NoteCard = React.memo(({ note }: { note: Note }) => {
             >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="harini" id={`reply-harini-${note.id}`} />
-                <Label htmlFor={`reply-harini-${note.id}`} className="cursor-pointer">
+                <Label htmlFor={`reply-harini-${note.id}`} className="cursor-pointer text-sm">
                   Harini
                 </Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="deva" id={`reply-deva-${note.id}`} />
-                <Label htmlFor={`reply-deva-${note.id}`} className="cursor-pointer">
+                <Label htmlFor={`reply-deva-${note.id}`} className="cursor-pointer text-sm">
                   Deva
                 </Label>
               </div>
@@ -173,7 +262,7 @@ const NoteCard = React.memo(({ note }: { note: Note }) => {
               placeholder="Type your reply..."
               value={replyMessage}
               onChange={(e) => setReplyMessage(e.target.value)}
-              className="resize-none rounded-2xl bg-background/50"
+              className="resize-none rounded-xl bg-background/50"
               rows={3}
               maxLength={500}
             />
@@ -186,7 +275,7 @@ const NoteCard = React.memo(({ note }: { note: Note }) => {
                 className="rounded-full"
               >
                 <Send size={16} className="mr-1" />
-                Send Reply
+                Send
               </Button>
               <Button
                 onClick={() => {
@@ -202,16 +291,16 @@ const NoteCard = React.memo(({ note }: { note: Note }) => {
             </div>
           </div>
         )}
-      </div>
 
-      {/* Recursive Replies */}
-      {showReplies && note.replies && note.replies.length > 0 && (
-        <div className="ml-8 md:ml-12 space-y-3">
-          {note.replies.map((reply) => (
-            <NoteCard key={reply.id} note={reply} />
-          ))}
-        </div>
-      )}
+        {/* Recursive Replies */}
+        {showReplies && note.replies && note.replies.length > 0 && (
+          <div className="w-full space-y-3 mt-2">
+            {note.replies.map((reply) => (
+              <NoteCard key={reply.id} note={reply} />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 });
@@ -355,27 +444,25 @@ const Notes = () => {
           </div>
         </div>
 
-        {/* Notes List */}
-        {isLoading ? (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground text-lg">Loading notes...</p>
-          </div>
-        ) : notes.length === 0 ? (
-          <div className="text-center py-12 space-y-4">
-            <MessageCircle className="w-16 h-16 text-muted-foreground mx-auto opacity-50" />
-            <p className="text-muted-foreground text-xl">No notes yet. Be the first to write one! 💌</p>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-semibold text-foreground mb-6 flex items-center gap-2">
-              <Heart className="text-primary fill-primary" size={24} />
-              All Notes
-            </h2>
-            {notes.map((note) => (
-              <NoteCard key={note.id} note={note} />
-            ))}
-          </div>
-        )}
+        {/* Chat Messages */}
+        <div className="bg-card/60 backdrop-blur-xl rounded-3xl p-6 shadow-elegant border border-primary/10 min-h-[500px] max-h-[600px] overflow-y-auto">
+          {isLoading ? (
+            <div className="flex items-center justify-center h-full">
+              <p className="text-muted-foreground text-lg">Loading messages...</p>
+            </div>
+          ) : notes.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full space-y-4">
+              <MessageCircle className="w-16 h-16 text-muted-foreground opacity-50" />
+              <p className="text-muted-foreground text-xl">No messages yet. Start the conversation! 💌</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {notes.map((note) => (
+                <NoteCard key={note.id} note={note} />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
