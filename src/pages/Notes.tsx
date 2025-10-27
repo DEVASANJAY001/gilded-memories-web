@@ -17,9 +17,6 @@ import { toast } from "sonner";
 import { z } from "zod";
 import React from "react";
 
-// ============================
-// SCHEMA & TYPES
-// ============================
 const noteSchema = z.object({
   sender: z.enum(["harini", "deva"]),
   message: z.string().trim().min(1).max(500),
@@ -36,17 +33,11 @@ interface Note {
   replies?: Note[];
 }
 
-// ============================
-// HELPERS
-// ============================
 const formatTime = (timestamp: string) => {
   const date = new Date(timestamp);
   return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 };
 
-// ============================
-// MESSAGE BUBBLE COMPONENT
-// ============================
 const MessageBubble = React.memo(
   ({
     note,
@@ -76,20 +67,20 @@ const MessageBubble = React.memo(
         <div
           className={`max-w-[75%] rounded-2xl p-3 shadow-md ${
             isOwn
-              ? "bg-gradient-to-br from-pink-500 to-rose-400 text-white rounded-br-sm"
-              : "bg-gradient-to-br from-sky-500 to-cyan-400 text-white rounded-bl-sm"
+              ? "bg-gradient-to-br from-rose-500 to-pink-600 text-white rounded-br-sm"
+              : "bg-gradient-to-br from-indigo-500 to-sky-600 text-white rounded-bl-sm"
           }`}
         >
-          <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">
+          <p className="whitespace-pre-wrap break-words text-sm leading-relaxed drop-shadow-md">
             {note.message}
           </p>
 
-          <div className="flex items-center justify-end gap-1 mt-1 text-[11px] opacity-90">
+          <div className="flex items-center justify-end gap-1 mt-1 text-[11px] text-white/90">
             <span>{formatTime(note.created_at)}</span>
             {isOwn && tickIcon}
           </div>
 
-          {/* Action Buttons */}
+          {/* Action buttons */}
           <div
             className={`flex gap-2 mt-1 ${
               isOwn ? "justify-end" : "justify-start"
@@ -119,7 +110,7 @@ const MessageBubble = React.memo(
             )}
           </div>
 
-          {/* Recursive Replies */}
+          {/* Replies */}
           {note.replies && note.replies.length > 0 && (
             <div className="mt-2 border-l border-white/30 pl-3 space-y-2">
               {note.replies.map((reply) => (
@@ -140,9 +131,6 @@ const MessageBubble = React.memo(
   }
 );
 
-// ============================
-// MAIN PAGE
-// ============================
 const Notes = () => {
   const [notes, setNotes] = useState<Note[]>([]);
   const [sender, setSender] = useState<"harini" | "deva">("harini");
@@ -151,43 +139,30 @@ const Notes = () => {
   const [editNote, setEditNote] = useState<Note | null>(null);
   const [isSending, setIsSending] = useState(false);
 
-  // 🔁 Load + Realtime Sync
   useEffect(() => {
     loadNotes();
-
     const channel = supabase
       .channel("notes-realtime")
       .on("postgres_changes", { event: "*", schema: "public", table: "notes" }, loadNotes)
       .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return () => supabase.removeChannel(channel);
   }, []);
 
   const loadNotes = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("notes")
-        .select("*")
-        .order("created_at", { ascending: true });
-      if (error) throw error;
+    const { data, error } = await supabase
+      .from("notes")
+      .select("*")
+      .order("created_at", { ascending: true });
+    if (error) return console.error(error);
 
-      // Build tree
-      const map = new Map<string, Note>();
-      const roots: Note[] = [];
-
-      data.forEach((n) => map.set(n.id, { ...n, replies: [] }));
-      data.forEach((n) => {
-        if (n.parent_id) {
-          map.get(n.parent_id)?.replies?.push(map.get(n.id)!);
-        } else roots.push(map.get(n.id)!);
-      });
-
-      setNotes(roots);
-    } catch (err) {
-      console.error("Error loading notes:", err);
-    }
+    const map = new Map<string, Note>();
+    const roots: Note[] = [];
+    data.forEach((n) => map.set(n.id, { ...n, replies: [] }));
+    data.forEach((n) => {
+      if (n.parent_id) map.get(n.parent_id)?.replies?.push(map.get(n.id)!);
+      else roots.push(map.get(n.id)!);
+    });
+    setNotes(roots);
   };
 
   const handleSend = async () => {
@@ -217,8 +192,7 @@ const Notes = () => {
       }
       setMessage("");
     } catch (err) {
-      console.error(err);
-      toast.error("Failed to send message");
+      toast.error("Failed to send");
     } finally {
       setIsSending(false);
     }
@@ -226,27 +200,23 @@ const Notes = () => {
 
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this message?")) return;
-    try {
-      const { error } = await supabase.from("notes").delete().eq("id", id);
-      if (error) throw error;
-      toast.success("Deleted!");
-    } catch {
-      toast.error("Delete failed");
-    }
+    const { error } = await supabase.from("notes").delete().eq("id", id);
+    if (error) return toast.error("Delete failed");
+    toast.success("Deleted!");
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-b from-[#fdf2f8] via-[#f0f9ff] to-[#fefcfb]">
+    <div className="flex flex-col h-screen bg-gradient-to-b from-[#ffe6ef] via-[#fff4f7] to-[#fffafb]">
       {/* Header */}
-      <div className="p-4 border-b bg-white/80 backdrop-blur-xl text-center font-semibold text-lg text-gray-800 shadow-sm">
-        💬 Harini & Deva Notes
+      <div className="p-4 border-b bg-white/70 backdrop-blur-md text-center font-semibold text-lg text-rose-600">
+        💌 Harini & Deva Notes
       </div>
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-6 space-y-2">
         {notes.length === 0 ? (
           <div className="flex justify-center items-center h-full text-gray-500">
-            No messages yet. Start chatting! 💌
+            No messages yet 💖
           </div>
         ) : (
           notes.map((note) => (
@@ -265,22 +235,21 @@ const Notes = () => {
         )}
       </div>
 
-      {/* Input Section */}
-      <div className="border-t bg-white/90 backdrop-blur-xl p-4 shadow-inner">
+      {/* Input Bar */}
+      <div className="border-t bg-white/90 backdrop-blur-md p-4 shadow-inner">
         {replyTo && (
-          <div className="mb-2 p-2 bg-sky-50 border border-sky-200 rounded-md text-sm flex justify-between items-center">
-            Replying to <strong>{replyTo.sender}</strong>: "
-            {replyTo.message.slice(0, 40)}..."
+          <div className="mb-2 p-2 bg-pink-50 border border-pink-200 rounded-md text-sm flex justify-between items-center">
+            Replying to <strong>{replyTo.sender}</strong>: “
+            {replyTo.message.slice(0, 40)}...”
             <button
               onClick={() => setReplyTo(null)}
-              className="text-xs text-gray-500 hover:text-sky-600 flex items-center gap-1"
+              className="text-xs text-gray-500 hover:text-rose-500 flex items-center gap-1"
             >
               <X size={12} /> Cancel
             </button>
           </div>
         )}
         <div className="flex items-end gap-2">
-          {/* Sender Switch */}
           <RadioGroup
             value={sender}
             onValueChange={(v) => setSender(v as "harini" | "deva")}
@@ -288,32 +257,30 @@ const Notes = () => {
           >
             <div className="flex items-center space-x-1">
               <RadioGroupItem value="harini" id="sender-harini" />
-              <Label htmlFor="sender-harini" className="text-sm">
+              <Label htmlFor="sender-harini" className="text-sm text-rose-600">
                 Harini
               </Label>
             </div>
             <div className="flex items-center space-x-1">
               <RadioGroupItem value="deva" id="sender-deva" />
-              <Label htmlFor="sender-deva" className="text-sm">
+              <Label htmlFor="sender-deva" className="text-sm text-indigo-600">
                 Deva
               </Label>
             </div>
           </RadioGroup>
 
-          {/* Message Input */}
           <Textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder={editNote ? "Edit message..." : "Type a message..."}
-            className="flex-1 resize-none rounded-2xl min-h-[48px] max-h-[120px] bg-gray-50 border border-gray-200 focus:border-sky-300 focus:ring-1 focus:ring-sky-300"
+            className="flex-1 resize-none rounded-2xl min-h-[48px] max-h-[120px] bg-white border border-gray-200 focus:border-pink-300 focus:ring-1 focus:ring-pink-300 text-gray-700"
             rows={2}
           />
 
-          {/* Send Button */}
           <Button
             onClick={handleSend}
             disabled={isSending || !message.trim()}
-            className="rounded-full h-12 w-12 p-0 flex items-center justify-center bg-gradient-to-br from-sky-500 to-blue-500 hover:from-sky-600 hover:to-blue-600 text-white shadow-md"
+            className="rounded-full h-12 w-12 p-0 flex items-center justify-center bg-gradient-to-br from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white shadow-md"
           >
             <Send size={18} />
           </Button>
