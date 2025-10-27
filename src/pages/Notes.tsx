@@ -8,6 +8,7 @@ import {
   Reply,
   X,
 } from "lucide-react";
+import { useSwipeable } from "react-swipeable";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -54,6 +55,12 @@ const MessageBubble = React.memo(
   }) => {
     const isOwn = note.sender === currentUser;
 
+    const handlers = useSwipeable({
+      onSwipedRight: () => onReply(note),
+      onSwipedLeft: () => onDelete(note.id),
+      delta: 50,
+    });
+
     const tickIcon = note.seen ? (
       <CheckCheck className="w-4 h-4 text-sky-400" />
     ) : note.delivered ? (
@@ -63,9 +70,9 @@ const MessageBubble = React.memo(
     );
 
     return (
-      <div className={`flex ${isOwn ? "justify-end" : "justify-start"} mb-3`}>
+      <div {...handlers} className={`flex ${isOwn ? "justify-end" : "justify-start"} mb-3`}>
         <div
-          className={`max-w-[75%] rounded-2xl p-3 shadow-md ${
+          className={`max-w-[75%] rounded-2xl p-3 shadow-md transition-all duration-200 ${
             isOwn
               ? "bg-gradient-to-br from-rose-500 to-pink-600 text-white rounded-br-sm"
               : "bg-gradient-to-br from-indigo-500 to-sky-600 text-white rounded-bl-sm"
@@ -74,43 +81,11 @@ const MessageBubble = React.memo(
           <p className="whitespace-pre-wrap break-words text-sm leading-relaxed drop-shadow-md">
             {note.message}
           </p>
-
           <div className="flex items-center justify-end gap-1 mt-1 text-[11px] text-white/90">
             <span>{formatTime(note.created_at)}</span>
             {isOwn && tickIcon}
           </div>
 
-          {/* Action buttons */}
-          <div
-            className={`flex gap-2 mt-1 ${
-              isOwn ? "justify-end" : "justify-start"
-            } text-white/80`}
-          >
-            <button
-              onClick={() => onReply(note)}
-              className="text-[11px] hover:text-white flex items-center gap-1"
-            >
-              <Reply size={11} /> Reply
-            </button>
-            {isOwn && (
-              <>
-                <button
-                  onClick={() => onEdit(note)}
-                  className="text-[11px] hover:text-white flex items-center gap-1"
-                >
-                  <Edit2 size={11} /> Edit
-                </button>
-                <button
-                  onClick={() => onDelete(note.id)}
-                  className="text-[11px] hover:text-white flex items-center gap-1"
-                >
-                  <Trash2 size={11} /> Delete
-                </button>
-              </>
-            )}
-          </div>
-
-          {/* Replies */}
           {note.replies && note.replies.length > 0 && (
             <div className="mt-2 border-l border-white/30 pl-3 space-y-2">
               {note.replies.map((reply) => (
@@ -206,13 +181,11 @@ const Notes = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-b from-[#ffe6ef] via-[#fff4f7] to-[#fffafb]">
-      {/* Header */}
-      <div className="p-4 border-b bg-white/70 backdrop-blur-md text-center font-semibold text-lg text-rose-600">
+    <div className="flex flex-col h-screen bg-gradient-to-b from-[#fdf2f8] via-[#fff] to-[#f0f9ff]">
+      <div className="p-4 border-b bg-white/70 backdrop-blur-md text-center font-semibold text-lg text-blue-600">
         💌 Harini & Deva Notes
       </div>
 
-      {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-6 space-y-2">
         {notes.length === 0 ? (
           <div className="flex justify-center items-center h-full text-gray-500">
@@ -235,15 +208,14 @@ const Notes = () => {
         )}
       </div>
 
-      {/* Input Bar */}
       <div className="border-t bg-white/90 backdrop-blur-md p-4 shadow-inner">
         {replyTo && (
-          <div className="mb-2 p-2 bg-pink-50 border border-pink-200 rounded-md text-sm flex justify-between items-center">
+          <div className="mb-2 p-2 bg-blue-50 border border-blue-200 rounded-md text-sm flex justify-between items-center">
             Replying to <strong>{replyTo.sender}</strong>: “
             {replyTo.message.slice(0, 40)}...”
             <button
               onClick={() => setReplyTo(null)}
-              className="text-xs text-gray-500 hover:text-rose-500 flex items-center gap-1"
+              className="text-xs text-gray-500 hover:text-blue-500 flex items-center gap-1"
             >
               <X size={12} /> Cancel
             </button>
@@ -273,14 +245,14 @@ const Notes = () => {
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder={editNote ? "Edit message..." : "Type a message..."}
-            className="flex-1 resize-none rounded-2xl min-h-[48px] max-h-[120px] bg-white border border-gray-200 focus:border-pink-300 focus:ring-1 focus:ring-pink-300 text-gray-700"
+            className="flex-1 resize-none rounded-2xl min-h-[48px] max-h-[120px] bg-gradient-to-br from-[#c9e6ff] to-[#eaf6ff] border border-blue-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-300 text-gray-700"
             rows={2}
           />
 
           <Button
             onClick={handleSend}
             disabled={isSending || !message.trim()}
-            className="rounded-full h-12 w-12 p-0 flex items-center justify-center bg-gradient-to-br from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white shadow-md"
+            className="rounded-full h-12 w-12 p-0 flex items-center justify-center bg-gradient-to-br from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 text-white shadow-md"
           >
             <Send size={18} />
           </Button>
