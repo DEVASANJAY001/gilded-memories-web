@@ -63,13 +63,12 @@ const MessageBubble = React.memo(
   }) => {
     const isOwn = note.sender === currentUser;
 
-    // ✅ Tick Icons
     const tickIcon = note.seen ? (
       <CheckCheck className="w-4 h-4 text-sky-400" />
     ) : note.delivered ? (
-      <CheckCheck className="w-4 h-4 text-muted-foreground" />
+      <CheckCheck className="w-4 h-4 text-gray-400" />
     ) : (
-      <Check className="w-4 h-4 text-muted-foreground" />
+      <Check className="w-4 h-4 text-gray-400" />
     );
 
     return (
@@ -142,7 +141,7 @@ const MessageBubble = React.memo(
 );
 
 // ============================
-// MAIN CHAT PAGE
+// MAIN PAGE
 // ============================
 const Notes = () => {
   const [notes, setNotes] = useState<Note[]>([]);
@@ -152,13 +151,15 @@ const Notes = () => {
   const [editNote, setEditNote] = useState<Note | null>(null);
   const [isSending, setIsSending] = useState(false);
 
-  // 🔁 Load + Realtime sync
+  // 🔁 Load + Realtime Sync
   useEffect(() => {
     loadNotes();
+
     const channel = supabase
       .channel("notes-realtime")
       .on("postgres_changes", { event: "*", schema: "public", table: "notes" }, loadNotes)
       .subscribe();
+
     return () => {
       supabase.removeChannel(channel);
     };
@@ -172,6 +173,7 @@ const Notes = () => {
         .order("created_at", { ascending: true });
       if (error) throw error;
 
+      // Build tree
       const map = new Map<string, Note>();
       const roots: Note[] = [];
 
@@ -188,7 +190,6 @@ const Notes = () => {
     }
   };
 
-  // ✉️ Send / Edit / Reply
   const handleSend = async () => {
     if (!message.trim()) return;
     const validation = noteSchema.safeParse({ sender, message });
@@ -223,7 +224,6 @@ const Notes = () => {
     }
   };
 
-  // 🗑 Delete
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this message?")) return;
     try {
@@ -239,7 +239,7 @@ const Notes = () => {
     <div className="flex flex-col h-screen bg-gradient-to-b from-[#fdf2f8] via-[#f0f9ff] to-[#fefcfb]">
       {/* Header */}
       <div className="p-4 border-b bg-white/80 backdrop-blur-xl text-center font-semibold text-lg text-gray-800 shadow-sm">
-        💬 Harini & Deva Chat
+        💬 Harini & Deva Notes
       </div>
 
       {/* Messages */}
@@ -265,7 +265,7 @@ const Notes = () => {
         )}
       </div>
 
-      {/* Input Bar */}
+      {/* Input Section */}
       <div className="border-t bg-white/90 backdrop-blur-xl p-4 shadow-inner">
         {replyTo && (
           <div className="mb-2 p-2 bg-sky-50 border border-sky-200 rounded-md text-sm flex justify-between items-center">
@@ -273,14 +273,14 @@ const Notes = () => {
             {replyTo.message.slice(0, 40)}..."
             <button
               onClick={() => setReplyTo(null)}
-              className="text-xs text-muted-foreground hover:text-sky-500 flex items-center gap-1"
+              className="text-xs text-gray-500 hover:text-sky-600 flex items-center gap-1"
             >
               <X size={12} /> Cancel
             </button>
           </div>
         )}
         <div className="flex items-end gap-2">
-          {/* Sender Selector */}
+          {/* Sender Switch */}
           <RadioGroup
             value={sender}
             onValueChange={(v) => setSender(v as "harini" | "deva")}
@@ -300,7 +300,7 @@ const Notes = () => {
             </div>
           </RadioGroup>
 
-          {/* Message Box */}
+          {/* Message Input */}
           <Textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
